@@ -17,6 +17,7 @@ import {
   User
 } from '@pubflow/core';
 import { SecureStorageAdapter } from '../storage/secureStorage';
+import { setDebugConfig } from './debugConfig';
 
 /**
  * Pubflow context value
@@ -85,6 +86,13 @@ export interface PubflowProviderProps {
    * Persistent cache configuration
    */
   persistentCache?: PersistentCacheConfig;
+
+  /**
+   * Enable debug tools
+   * When enabled, storage debug utilities will be available
+   * Default: false
+   */
+  enableDebugTools?: boolean;
 }
 
 /**
@@ -98,13 +106,23 @@ export function PubflowProvider({
   onSessionExpired,
   onSessionRefreshed,
   showSessionAlerts = false,
-  persistentCache = { enabled: false }
+  persistentCache = { enabled: false },
+  enableDebugTools = false
 }: PubflowProviderProps) {
   const [isInitialized, setIsInitialized] = useState(false);
   const [contextValue, setContextValue] = useState<PubflowContextValue>({
     instances: {},
     defaultInstance
   });
+
+  // Configure debug tools
+  useEffect(() => {
+    setDebugConfig({ enabled: enableDebugTools });
+
+    if (enableDebugTools) {
+      console.log('Pubflow debug tools enabled');
+    }
+  }, [enableDebugTools]);
 
   // Handle session expiration
   const handleSessionExpired = useCallback(() => {

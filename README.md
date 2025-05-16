@@ -448,6 +448,38 @@ export default function ProductsScreen() {
 
 For detailed documentation on offline support, see the [full documentation](./docs/README.md).
 
+## Debugging Tools
+
+Pubflow provides utilities for debugging storage-related issues:
+
+```jsx
+import { PubflowProvider, debugStorage, clearStorageByPrefix } from '@pubflow/react-native';
+
+// Enable debug tools in the provider
+function App() {
+  return (
+    <PubflowProvider
+      config={config}
+      enableDebugTools={__DEV__} // Only enable in development
+    >
+      {/* Your app components */}
+    </PubflowProvider>
+  );
+}
+
+// Use debug utilities
+async function debugStorageIssues() {
+  // Inspect storage
+  const storage = await debugStorage('prefix');
+  console.log(storage.keys, storage.values);
+
+  // Clear storage with specific prefix
+  await clearStorageByPrefix('prefix');
+}
+```
+
+For more information, see the [debugging documentation](./docs/debugging.md).
+
 ## License
 
 AGPL-3.0-or-later
