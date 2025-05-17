@@ -11,6 +11,7 @@ Bienvenido a la documentación de Pubflow para React Native. Esta guía te ayuda
 - [Operaciones de Datos](#operaciones-de-datos)
 - [Componentes](#componentes)
 - [Soporte Offline](#soporte-offline)
+- [Depuración y Rendimiento](#depuración-y-rendimiento)
 - [Uso Avanzado](#uso-avanzado)
 
 ## Introducción
@@ -585,6 +586,89 @@ export default function ProductsScreen() {
 ### Documentación detallada
 
 Para una explicación completa del soporte offline, incluyendo ejemplos avanzados y mejores prácticas, consulta la [guía de soporte offline](./offline-support.md).
+
+## Depuración y Rendimiento
+
+Pubflow incluye herramientas para facilitar la depuración y optimizar el rendimiento de tu aplicación.
+
+### Herramientas de Depuración
+
+El adaptador de React Native incluye utilidades para depurar problemas relacionados con el almacenamiento:
+
+```jsx
+import { debugStorage, clearStorageByPrefix } from '@pubflow/react-native';
+
+// Habilitar herramientas de depuración en el proveedor
+<PubflowProvider
+  config={config}
+  enableDebugTools={__DEV__} // Solo habilitar en desarrollo
+>
+  {/* Componentes de tu aplicación */}
+</PubflowProvider>
+
+// Inspeccionar el almacenamiento
+async function debugStorageIssues() {
+  // Inspeccionar todo el almacenamiento
+  const allStorage = await debugStorage();
+  console.log('Todas las claves:', allStorage.keys);
+
+  // Inspeccionar almacenamiento con un prefijo específico
+  const pubflowStorage = await debugStorage('pubflow');
+  console.log('Claves de Pubflow:', pubflowStorage.keys);
+  console.log('Valores de Pubflow:', pubflowStorage.values);
+
+  // Limpiar almacenamiento con un prefijo específico
+  await clearStorageByPrefix('pubflow');
+}
+```
+
+Para más información sobre las herramientas de depuración, consulta la [documentación de depuración](./debugging.md).
+
+### Control de Logs
+
+Pubflow genera logs para ayudar en el desarrollo, pero estos pueden afectar el rendimiento en producción. Puedes controlar los logs a través de la configuración:
+
+```jsx
+<PubflowProvider
+  config={config}
+  loggingConfig={{
+    enabled: __DEV__, // Solo habilitar logs en desarrollo
+    level: 'warn',    // Solo mostrar advertencias y errores
+    storage: false    // Desactivar logs de almacenamiento que pueden ser verbosos
+  }}
+>
+  {/* Componentes de tu aplicación */}
+</PubflowProvider>
+```
+
+Para una explicación completa de las opciones de control de logs, consulta la [documentación de control de logs](./logging-control.md).
+
+### Optimización de Rendimiento
+
+Para optimizar el rendimiento de tu aplicación, especialmente en dispositivos con recursos limitados:
+
+1. **Desactiva los logs en producción**:
+   ```jsx
+   loggingConfig={{ enabled: false }}
+   ```
+
+2. **Usa caché persistente** para reducir las peticiones de red:
+   ```jsx
+   persistentCache={{ enabled: true }}
+   ```
+
+3. **Configura la validación de sesión** para reducir las peticiones de validación:
+   ```jsx
+   sessionConfig={{
+     validationInterval: 60 * 60 * 1000, // 1 hora
+     validateBeforeRequests: false
+   }}
+   ```
+
+4. **Implementa el soporte offline** para mejorar la experiencia del usuario:
+   ```jsx
+   offlineConfig={{ queueMutations: true }}
+   ```
 
 ## Uso Avanzado
 

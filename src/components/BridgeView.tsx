@@ -97,8 +97,8 @@ export function BridgeView({
     return <>{fallback}</>;
   }
   
-  // Check if user type is allowed
-  const userType = user?.userType || '';
+  // Check if user type is allowed (check both userType and user_type)
+  const userType = user?.userType || user?.user_type || '';
   const isAllowed = types.some(type => 
     type.toLowerCase() === userType.toLowerCase()
   );

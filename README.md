@@ -480,6 +480,31 @@ async function debugStorageIssues() {
 
 For more information, see the [debugging documentation](./docs/debugging.md).
 
+## Logging Control
+
+Pubflow allows you to control the verbosity of logs to optimize performance:
+
+```jsx
+import { PubflowProvider } from '@pubflow/react-native';
+
+function App() {
+  return (
+    <PubflowProvider
+      config={config}
+      loggingConfig={{
+        enabled: __DEV__, // Only enable logs in development
+        level: 'warn',    // Only show warnings and errors
+        storage: false    // Disable storage logs which can be verbose
+      }}
+    >
+      {/* Your app components */}
+    </PubflowProvider>
+  );
+}
+```
+
+For more information, see the [logging control documentation](./docs/logging-control.md).
+
 ## License
 
 AGPL-3.0-or-later
