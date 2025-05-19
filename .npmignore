@@ -1,6 +1,7 @@
 # Source files
 src/
 docs/
+node_modules/
 
 # TypeScript configuration
 tsconfig.json

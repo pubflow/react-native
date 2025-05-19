@@ -12,6 +12,7 @@ export * from './components/BridgeView';
 export * from './components/BridgeList';
 export * from './components/BridgeForm';
 export * from './components/OfflineIndicator';
+export * from './components/AdvancedFilter';
 
 // Export context
 export * from './context/PubflowProvider';
@@ -19,8 +20,12 @@ export * from './context/PubflowProvider';
 // Export hooks
 export * from './hooks/useAuth';
 export * from './hooks/useBridgeApi';
+export * from './hooks/useBridgeApiRaw';
 export * from './hooks/useBridgeQuery';
 export * from './hooks/useBridgeMutation';
+
+// Export services
+export * from './services/BridgeApiRawService';
 
 // Explicitly re-export to avoid conflicts
 import { useBridgeCrud } from './hooks/useBridgeCrud';
@@ -33,3 +38,6 @@ export * from './storage/secureStorage';
 export * from './utils/netInfo';
 export * from './utils/index';
 export * from './utils/storageDebug';
+
+// Export constants
+export * from './constants/operators';
