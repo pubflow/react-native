@@ -101,6 +101,7 @@ export interface AdvancedFilterProps {
     selectField?: string;
     selectOperator?: string;
     enterValue?: string;
+    [key: string]: string | undefined; // Permite cualquier propiedad adicional
   };
 
   /**
