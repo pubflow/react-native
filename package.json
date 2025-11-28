@@ -1,6 +1,6 @@
 {
   "name": "@pubflow/react-native",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "React Native adapter for Pubflow framework - Now with snake_case support",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -24,7 +24,7 @@
     "@pubflow/core": "^0.3.1",
     "@react-native-async-storage/async-storage": "^1.19.3",
     "@react-native-picker/picker": "^2.5.1",
-    "@react-native-community/datetimepicker": "^7.6.1",
+    "@react-native-community/datetimepicker": "^8.5.1",
     "react-hook-form": "^7.48.2",
     "@hookform/resolvers": "^3.3.2",
     "swr": "^2.2.4"
