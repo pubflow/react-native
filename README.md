@@ -2,6 +2,12 @@
 
 React Native adapter for the Pubflow framework with Expo support.
 
+## 📚 Documentation
+
+- **Flowless (Authentication Backend)**: [https://flowless.dev/](https://flowless.dev/)
+- **Flowfull Client Libraries**: [https://clients.flowfull.dev/](https://clients.flowfull.dev/)
+- **Bridge Payments**: [https://bridgepayments.dev/](https://bridgepayments.dev/)
+
 ## Overview
 
 `@pubflow/react-native` provides React Native-specific implementations and utilities for the Pubflow framework, including:
@@ -9,6 +15,7 @@ React Native adapter for the Pubflow framework with Expo support.
 - Secure storage with Expo SecureStore (with AsyncStorage fallback)
 - React Native-specific components
 - Hooks optimized for mobile applications
+- **Bridge Payment Client** for payment processing (NEW in v0.3.0)
 - Support for offline mode with mutation queuing
 
 ## Installation
@@ -28,6 +35,9 @@ npm install @react-native-community/netinfo
 
 # Optional: Install Zod for schema validation
 npm install zod
+
+# For payments: Install Stripe React Native
+npm install @stripe/stripe-react-native
 ```
 
 ## Persistent Cache

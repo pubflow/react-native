@@ -41,3 +41,38 @@ export * from './utils/storageDebug';
 
 // Export constants
 export * from './constants/operators';
+
+// Export Bridge Payments (from core)
+export { BridgePaymentClient } from '@pubflow/core';
+export type {
+  BridgePaymentConfig,
+  PaymentRequestOptions,
+  CreatePaymentIntentRequest,
+  PaymentIntent,
+  Payment,
+  PaymentMethodType,
+  PaymentMethod,
+  UpdatePaymentMethodRequest,
+  AddressType,
+  Address,
+  CreateAddressRequest,
+  UpdateAddressRequest,
+  Customer,
+  CreateCustomerRequest,
+  UpdateCustomerRequest,
+  SubscriptionStatus,
+  Subscription,
+  CreateSubscriptionRequest,
+  CancelSubscriptionRequest,
+  OrganizationRole,
+  Organization,
+  CreateOrganizationRequest,
+  UpdateOrganizationRequest,
+  OrganizationMember,
+  AddOrganizationMemberRequest,
+  UpdateOrganizationMemberRoleRequest,
+  ConvertGuestToUserRequest,
+  ConvertGuestToUserResponse,
+  PaginationParams,
+  ListResponse
+} from '@pubflow/core';
