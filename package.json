@@ -1,6 +1,6 @@
 {
   "name": "@pubflow/react-native",
-  "version": "0.4.2",
+  "version": "0.5.0",
   "description": "React Native adapter for Pubflow framework - Now with snake_case support and Bridge Payments",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -21,7 +21,7 @@
   "author": "Pubflow, Inc.",
   "license": "AGPL-3.0-or-later",
   "dependencies": {
-    "@pubflow/core": "^0.4.7",
+    "@pubflow/core": "^0.5.0",
     "@react-native-async-storage/async-storage": "^1.19.3",
     "@react-native-picker/picker": "^2.5.1",
     "@react-native-community/datetimepicker": "^8.5.1",

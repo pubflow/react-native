@@ -6,7 +6,7 @@
       "name": "@pubflow/react-native",
       "dependencies": {
         "@hookform/resolvers": "^3.3.2",
-        "@pubflow/core": "^0.4.7",
+        "@pubflow/core": "^0.5.0",
         "@react-native-async-storage/async-storage": "^1.19.3",
         "@react-native-community/datetimepicker": "^8.5.1",
         "@react-native-picker/picker": "^2.5.1",
@@ -428,7 +428,7 @@
 
     "@pkgjs/parseargs": ["@pkgjs/parseargs@0.11.0", "", {}, "sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg=="],
 
-    "@pubflow/core": ["@pubflow/core@0.4.7", "", { "dependencies": { "zod": "^3.22.4" } }, "sha512-RRLatWYtRXfO/Ubgt5r+93KGCGvFdpaU1r8RcrAKCChidz1VgCKAIiq3mhg3MfKvi1RL91g9DOLV4o3aWMGdrw=="],
+    "@pubflow/core": ["@pubflow/core@0.5.0", "", { "dependencies": { "zod": "^3.22.4" } }, "sha512-n0qTakGtO40YxWjbm5rxHriNXfbX5qIB0OsLakmPRaR9g78q6x+heVSNw/Gaqxk70Siqs9Fpe4Uhs9wQLoqC9A=="],
 
     "@react-native-async-storage/async-storage": ["@react-native-async-storage/async-storage@1.24.0", "", { "dependencies": { "merge-options": "^3.0.4" }, "peerDependencies": { "react-native": "^0.0.0-0 || >=0.60 <1.0" } }, "sha512-W4/vbwUOYOjco0x3toB8QCr7EjIP6nE9G7o8PMguvvjYT5Awg09lyV4enACRx4s++PPulBiBSjL0KTFx2u0Z/g=="],
 

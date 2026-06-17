@@ -13,6 +13,7 @@ Bienvenido a la documentación de Pubflow para React Native. Esta guía te ayuda
 - [Soporte Offline](#soporte-offline)
 - [Depuración y Rendimiento](#depuración-y-rendimiento)
 - [Uso Avanzado](#uso-avanzado)
+- [Multi-backend Modules](./multi-backend-modules.md)
 
 ## Introducción
 

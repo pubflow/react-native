@@ -24,6 +24,7 @@ export * from './hooks/useBridgeApi';
 export * from './hooks/useBridgeApiRaw';
 export * from './hooks/useBridgeQuery';
 export * from './hooks/useBridgeMutation';
+export * from './hooks/usePubflowClient';
 
 // Export services
 export * from './services/BridgeApiRawService';
