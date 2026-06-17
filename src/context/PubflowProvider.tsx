@@ -14,7 +14,11 @@ import {
   PubflowInstanceConfig,
   ApiClient,
   AuthService,
-  User
+  TwoFactorService,
+  User,
+  type TwoFactorMethod,
+  type TwoFactorStartResult,
+  type TwoFactorVerifyResult
 } from '@pubflow/core';
 import { SecureStorageAdapter } from '../storage/secureStorage';
 import { setDebugConfig } from './debugConfig';
@@ -25,6 +29,7 @@ import { setDebugConfig } from './debugConfig';
 export interface PubflowContextValue {
   instances: Record<string, PubflowInstance>;
   defaultInstance: string;
+  isReady: boolean;
 }
 
 /**
@@ -34,12 +39,17 @@ export interface PubflowInstance {
   config: PubflowInstanceConfig;
   apiClient: ApiClient;
   authService: AuthService;
+  twoFactorService: TwoFactorService;
   user: User | null | undefined;  // Allow undefined to fix type issues
   isAuthenticated: boolean;
   isLoading: boolean;
+  twoFactorPending: boolean;
+  twoFactorMethods: TwoFactorMethod[];
   login: (credentials: { email?: string; userName?: string; password: string }) => Promise<any>;
   logout: () => Promise<void>;
   validateSession: () => Promise<{ isValid: boolean; expiresAt?: string; user?: User }>;
+  startTwoFactor: (methodId: string, method: string) => Promise<TwoFactorStartResult>;
+  verifyTwoFactor: (methodId: string, code: string) => Promise<TwoFactorVerifyResult>;
 }
 
 /**
@@ -47,7 +57,8 @@ export interface PubflowInstance {
  */
 export const PubflowContext = createContext<PubflowContextValue>({
   instances: {},
-  defaultInstance: 'default'
+  defaultInstance: 'default',
+  isReady: false
 });
 
 /**
@@ -112,7 +123,8 @@ export function PubflowProvider({
   const [isInitialized, setIsInitialized] = useState(false);
   const [contextValue, setContextValue] = useState<PubflowContextValue>({
     instances: {},
-    defaultInstance
+    defaultInstance,
+    isReady: false
   });
 
   // Configure debug tools
@@ -184,6 +196,7 @@ export function PubflowProvider({
 
             // Create auth service
             const authService = new AuthService(apiClient, storage, fullConfig);
+            const twoFactorService = new TwoFactorService(apiClient, fullConfig);
 
             // Get current user
             let user = null;
@@ -201,9 +214,12 @@ export function PubflowProvider({
               config: fullConfig,
               apiClient,
               authService,
+              twoFactorService,
               user,
               isAuthenticated,
               isLoading: false,
+              twoFactorPending: false,
+              twoFactorMethods: [],
               login: async (credentials) => {
                 const result = await authService.login(credentials);
 
@@ -216,7 +232,21 @@ export function PubflowProvider({
                       [instanceConfig.id]: {
                         ...prev.instances[instanceConfig.id],
                         user: result.user,
-                        isAuthenticated: true
+                        isAuthenticated: true,
+                        twoFactorPending: false,
+                        twoFactorMethods: []
+                      }
+                    }
+                  }));
+                } else if (result.requires2fa) {
+                  setContextValue(prev => ({
+                    ...prev,
+                    instances: {
+                      ...prev.instances,
+                      [instanceConfig.id]: {
+                        ...prev.instances[instanceConfig.id],
+                        twoFactorPending: true,
+                        twoFactorMethods: result.availableMethods ?? []
                       }
                     }
                   }));
@@ -233,12 +263,14 @@ export function PubflowProvider({
                   instances: {
                     ...prev.instances,
                     [instanceConfig.id]: {
-                      ...prev.instances[instanceConfig.id],
-                      user: null,
-                      isAuthenticated: false
+                        ...prev.instances[instanceConfig.id],
+                        user: null,
+                        isAuthenticated: false,
+                        twoFactorPending: false,
+                        twoFactorMethods: []
+                      }
                     }
-                  }
-                }));
+                  }));
               },
               validateSession: async () => {
                 const result = await authService.validateSession();
@@ -249,12 +281,39 @@ export function PubflowProvider({
                   instances: {
                     ...prev.instances,
                     [instanceConfig.id]: {
-                      ...prev.instances[instanceConfig.id],
-                      user: result.user || null,
-                      isAuthenticated: result.isValid
+                        ...prev.instances[instanceConfig.id],
+                        user: result.user || null,
+                        isAuthenticated: result.isValid,
+                        twoFactorPending: false,
+                        twoFactorMethods: []
+                      }
                     }
-                  }
-                }));
+                  }));
+
+                return result;
+              },
+              startTwoFactor: async (methodId: string, method: string) => {
+                return twoFactorService.start(methodId, method, 'login');
+              },
+              verifyTwoFactor: async (methodId: string, code: string) => {
+                const result = await twoFactorService.verify(methodId, code, 'login');
+
+                if (result.verified || result.session_activated) {
+                  const userData = await authService.getCurrentUser();
+                  setContextValue(prev => ({
+                    ...prev,
+                    instances: {
+                      ...prev.instances,
+                      [instanceConfig.id]: {
+                        ...prev.instances[instanceConfig.id],
+                        user: userData,
+                        isAuthenticated: true,
+                        twoFactorPending: false,
+                        twoFactorMethods: []
+                      }
+                    }
+                  }));
+                }
 
                 return result;
               }
@@ -283,6 +342,7 @@ export function PubflowProvider({
 
           // Create auth service
           const authService = new AuthService(apiClient, storage, fullConfig);
+          const twoFactorService = new TwoFactorService(apiClient, fullConfig);
 
           // Get current user
           let user = null;
@@ -300,9 +360,12 @@ export function PubflowProvider({
             config: fullConfig,
             apiClient,
             authService,
+            twoFactorService,
             user,
             isAuthenticated,
             isLoading: false,
+            twoFactorPending: false,
+            twoFactorMethods: [],
             login: async (credentials) => {
               const result = await authService.login(credentials);
 
@@ -315,7 +378,21 @@ export function PubflowProvider({
                     [defaultInstance]: {
                       ...prev.instances[defaultInstance],
                       user: result.user,
-                      isAuthenticated: true
+                      isAuthenticated: true,
+                      twoFactorPending: false,
+                      twoFactorMethods: []
+                    }
+                  }
+                }));
+              } else if (result.requires2fa) {
+                setContextValue(prev => ({
+                  ...prev,
+                  instances: {
+                    ...prev.instances,
+                    [defaultInstance]: {
+                      ...prev.instances[defaultInstance],
+                      twoFactorPending: true,
+                      twoFactorMethods: result.availableMethods ?? []
                     }
                   }
                 }));
@@ -332,12 +409,14 @@ export function PubflowProvider({
                 instances: {
                   ...prev.instances,
                   [defaultInstance]: {
-                    ...prev.instances[defaultInstance],
-                    user: null,
-                    isAuthenticated: false
+                      ...prev.instances[defaultInstance],
+                      user: null,
+                      isAuthenticated: false,
+                      twoFactorPending: false,
+                      twoFactorMethods: []
+                    }
                   }
-                }
-              }));
+                }));
             },
             validateSession: async () => {
               const result = await authService.validateSession();
@@ -348,12 +427,39 @@ export function PubflowProvider({
                 instances: {
                   ...prev.instances,
                   [defaultInstance]: {
-                    ...prev.instances[defaultInstance],
-                    user: result.user || null,
-                    isAuthenticated: result.isValid
+                      ...prev.instances[defaultInstance],
+                      user: result.user || null,
+                      isAuthenticated: result.isValid,
+                      twoFactorPending: false,
+                      twoFactorMethods: []
+                    }
                   }
-                }
-              }));
+                }));
+
+              return result;
+            },
+            startTwoFactor: async (methodId: string, method: string) => {
+              return twoFactorService.start(methodId, method, 'login');
+            },
+            verifyTwoFactor: async (methodId: string, code: string) => {
+              const result = await twoFactorService.verify(methodId, code, 'login');
+
+              if (result.verified || result.session_activated) {
+                const userData = await authService.getCurrentUser();
+                setContextValue(prev => ({
+                  ...prev,
+                  instances: {
+                    ...prev.instances,
+                    [defaultInstance]: {
+                      ...prev.instances[defaultInstance],
+                      user: userData,
+                      isAuthenticated: true,
+                      twoFactorPending: false,
+                      twoFactorMethods: []
+                    }
+                  }
+                }));
+              }
 
               return result;
             }
@@ -363,7 +469,8 @@ export function PubflowProvider({
         // Set context value
         setContextValue({
           instances: instancesMap,
-          defaultInstance
+          defaultInstance,
+          isReady: true
         });
 
         // Set initialized

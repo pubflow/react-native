@@ -5,7 +5,7 @@
  */
 
 import { useContext, useState, useCallback, useEffect, useRef } from 'react';
-import { User } from '@pubflow/core';
+import { User, type TwoFactorMethod, type TwoFactorStartResult, type TwoFactorVerifyResult } from '@pubflow/core';
 import { PubflowContext } from '../context/PubflowProvider';
 import { SecureStorageAdapter } from '../storage/secureStorage';
 
@@ -18,9 +18,13 @@ export interface UseAuthResult {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  twoFactorPending: boolean;
+  twoFactorMethods: TwoFactorMethod[];
   login: (credentials: { email?: string; userName?: string; password: string }) => Promise<any>;
   logout: () => Promise<void>;
   validateSession: () => Promise<{ isValid: boolean; expiresAt?: string }>;
+  startTwoFactor: (methodId: string, method: string) => Promise<TwoFactorStartResult>;
+  verifyTwoFactor: (methodId: string, code: string) => Promise<TwoFactorVerifyResult>;
   refreshUser: () => Promise<User | null>;
 }
 
@@ -43,6 +47,22 @@ export function useAuth(instanceId?: string): UseAuthResult {
 
   const instance = instanceId || context.defaultInstance;
   const pubflowInstance = context.instances[instance];
+
+  if (!context.isReady) {
+    return {
+      user: null,
+      isAuthenticated: false,
+      isLoading: true,
+      twoFactorPending: false,
+      twoFactorMethods: [],
+      login: async () => { throw new Error('Pubflow not initialized yet'); },
+      logout: async () => { throw new Error('Pubflow not initialized yet'); },
+      validateSession: async () => ({ isValid: false }),
+      startTwoFactor: async () => ({ success: false, error: 'Pubflow not initialized yet' }),
+      verifyTwoFactor: async () => ({ success: false, error: 'Pubflow not initialized yet' }),
+      refreshUser: async () => null
+    };
+  }
 
   if (!pubflowInstance) {
     throw new Error(`Pubflow instance '${instance}' not found`);
@@ -79,6 +99,11 @@ export function useAuth(instanceId?: string): UseAuthResult {
       if (result.success && result.user) {
         pubflowInstance.user = result.user;
         pubflowInstance.isAuthenticated = true;
+        pubflowInstance.twoFactorPending = false;
+        pubflowInstance.twoFactorMethods = [];
+      } else if (result.requires2fa) {
+        pubflowInstance.twoFactorPending = true;
+        pubflowInstance.twoFactorMethods = result.availableMethods ?? [];
       }
       
       return result;
@@ -106,6 +131,8 @@ export function useAuth(instanceId?: string): UseAuthResult {
       // Reset instance state
       pubflowInstance.user = null;
       pubflowInstance.isAuthenticated = false;
+      pubflowInstance.twoFactorPending = false;
+      pubflowInstance.twoFactorMethods = [];
     } catch (error) {
       if (DEBUG_AUTH) {
         console.error('useAuth.logout: Error during logout:', error);
@@ -146,9 +173,13 @@ export function useAuth(instanceId?: string): UseAuthResult {
       if (result.isValid && result.user) {
         pubflowInstance.user = result.user;
         pubflowInstance.isAuthenticated = true;
+        pubflowInstance.twoFactorPending = false;
+        pubflowInstance.twoFactorMethods = [];
       } else {
         pubflowInstance.user = null;
         pubflowInstance.isAuthenticated = false;
+        pubflowInstance.twoFactorPending = false;
+        pubflowInstance.twoFactorMethods = [];
       }
       
       return result;
@@ -220,9 +251,13 @@ export function useAuth(instanceId?: string): UseAuthResult {
     user: pubflowInstance.user || null,
     isAuthenticated: pubflowInstance.isAuthenticated,
     isLoading,
+    twoFactorPending: pubflowInstance.twoFactorPending,
+    twoFactorMethods: pubflowInstance.twoFactorMethods,
     login,
     logout,
     validateSession,
+    startTwoFactor: pubflowInstance.startTwoFactor,
+    verifyTwoFactor: pubflowInstance.verifyTwoFactor,
     refreshUser
   };
 }

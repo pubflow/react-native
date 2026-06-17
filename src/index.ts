@@ -13,6 +13,7 @@ export * from './components/BridgeList';
 export * from './components/BridgeForm';
 export * from './components/OfflineIndicator';
 export * from './components/AdvancedFilter';
+export * from './components/auth';
 
 // Export context
 export * from './context/PubflowProvider';
